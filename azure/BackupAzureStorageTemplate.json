@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccounts_backup_name": {
+            "defaultValue": "backupstorage",
+            "type": "String",
+            "metadata": {
+                "description": "Name of storage-account (add custname)."
+              }
+        },
+        "rgName": {
+            "defaultValue": "RG-Backup",
+            "type": "string",
+            "metadata": {
+              "description": "Name of the resourceGroup to create"
+            }
+          },
+          "rgLocation": {
+            "type": "string",
+            "defaultValue": "westeurope",
+            "metadata": {
+              "description": "Location for the resourceGroup"
+            }
+          }
+    },
+    "variables": {
+        "storageAccount": {
+            "name": "[parameters('storageAccounts_backup_name')]"
+          },
+        "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]",
+        "apiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-02-01",
+            "name": "[parameters('storageAccounts_backup_name')]",
+            "location": "[parameters('rgLocation')]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": false,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        
+    }
+}
